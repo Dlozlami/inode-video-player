@@ -1,0 +1,295 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hideUi { cursor: none; }
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+.hideUi .overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+.container:not(.hideUi) .overlay {
+  pointer-events: all;
+}
+
+/* ── Top bar ── */
+.topBar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px 40px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 100%);
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  flex-shrink: 0;
+  transition: color 0.15s;
+  padding-top: 2px;
+}
+.backBtn:hover { color: #fff; }
+
+.topMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.topFilename {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.miniTag {
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.autoTag {
+  background: rgba(30,60,30,0.8);
+  color: #6db36d;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+.manualTag {
+  background: rgba(20,30,50,0.8);
+  color: #7aabdf;
+}
+
+.counter {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+/* ── Bottom ── */
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 40px 20px 16px;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+}
+
+/* ── Progress ── */
+.progressWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 38px;
+  flex-shrink: 0;
+}
+
+.progressBar {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: height 0.15s;
+}
+.progressBar:hover { height: 5px; }
+
+.progressFill {
+  height: 100%;
+  background: #fff;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.progressImage {
+  height: 100%;
+  background: #fff;
+  border-radius: 2px;
+  width: 0;
+  animation: imgProgress linear forwards;
+}
+@keyframes imgProgress { from { width: 0% } to { width: 100% } }
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controlsLeft, .controlsRight {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ctrl {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,0.7);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.ctrl:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+.playBtn {
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.playBtn:hover { background: rgba(255,255,255,0.2); }
+
+.active { color: #7ab87a; }
+.activeDot {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #7ab87a;
+  border-radius: 50%;
+}
+
+.volRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.volSlider {
+  -webkit-appearance: none;
+  width: 72px;
+  height: 3px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.volSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.volPct {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 32px;
+}
+
+/* ── Tag bar ── */
+.tagBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 4px;
+}
+
+.tagBtn {
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.tagBtn:hover {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.75);
+}
+.tagBtn.tagOn {
+  background: rgba(26,32,48,0.9);
+  color: #7aabdf;
+  border-color: rgba(107,159,212,0.4);
+}
+
+.noTags {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+}
+
+/* ── No file ── */
+.nofile {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: rgba(255,255,255,0.3);
+  background: #000;
+}
+.nofile button {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 13px;
+}

@@ -1,0 +1,57 @@
+{
+  "name": "inode-media-pro",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "start:react": "vite",
+"start:electron": "VITE_DEV_SERVER_URL=http://localhost:5173 electron . --disable-features=VaapiVideoDecoder",
+    "dev:electron": "concurrently \"npm run start:react\" \"wait-on http://localhost:5173 && npm run start:electron\"",
+    "dist": "vite build && electron-builder"
+  },
+  "build": {
+    "appId": "com.inode.mediapro",
+    "productName": "VaultPlayer",
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "dependencies": {
+    "ffprobe-static": "^3.1.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "framer-motion": "^12.34.3",
+    "lowdb": "^7.0.1",
+    "lucide-react": "^0.575.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.1",
+    "react-use": "^17.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
+    "electron": "^40.6.1",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "vite": "^8.0.0-beta.13",
+    "wait-on": "^9.0.4"
+  },
+  "overrides": {
+    "vite": "^8.0.0-beta.13"
+  },
+  "main": "electron/main.js"
+}

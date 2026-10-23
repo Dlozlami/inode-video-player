@@ -22,7 +22,9 @@ export default function Library() {
   const [tagSearch,       setTagSearch]       = useState('')
   const [durationFilter,  setDurationFilter]  = useState({ min: '', max: '' })
   const [tagCountFilter,  setTagCountFilter]  = useState({ min: '', max: '' })
+  const [playCountFilter, setPlayCountFilter] = useState({ min: '', max: '' })
   const [mediaTypeFilter, setMediaTypeFilter] = useState('all')
+  const [bulkConfirm,     setBulkConfirm]     = useState(null) // tag string
 
   // ── Load folder ──
   const loadFolder = useCallback(async (path) => {
@@ -33,7 +35,6 @@ export default function Library() {
     setMediaFiles(files)
     setTagsData(tags)
 
-    // Restore last played from tags.json
     const last = tags.__lastPlayed__
     if (last && last.playlist && last.playlist.length > 0) {
       setPlaylist(last.playlist)
@@ -85,14 +86,14 @@ export default function Library() {
   }
 
   const filteredFiles = useCallback(() => {
-    let files = filterMedia(mediaFiles, tagsData, activeFilters, durationFilter, tagCountFilter)
+    let files = filterMedia(mediaFiles, tagsData, activeFilters, durationFilter, tagCountFilter, playCountFilter)
     if (mediaTypeFilter === 'video') {
       files = files.filter(f => f.mediaType === 'video' || f.mediaType === 'gif')
     } else if (mediaTypeFilter === 'images') {
       files = files.filter(f => f.mediaType === 'image')
     }
     return files
-  }, [mediaFiles, tagsData, activeFilters, durationFilter, tagCountFilter, mediaTypeFilter])
+  }, [mediaFiles, tagsData, activeFilters, durationFilter, tagCountFilter, playCountFilter, mediaTypeFilter])
 
   const playAll = () => {
     const files = filteredFiles()
@@ -112,6 +113,45 @@ export default function Library() {
     setPlaylist(list)
     setCurrentIndex(idx >= 0 ? idx : 0)
     navigate(`/player/${inode}`)
+  }
+
+  // ── Bulk delete by tag ──
+  const bulkDeleteByTag = async (tag) => {
+    if (bulkConfirm !== tag) { setBulkConfirm(tag); return }
+    setBulkConfirm(null)
+
+    const targets = mediaFiles.filter(f => (tagsData[f.inode]?.tags || []).includes(tag))
+    if (!targets.length) return
+
+    const paths   = targets.map(f => f.filePath)
+    const results = await window.vault.deleteFiles(paths)
+
+    const deletedInodes = new Set(
+      results.filter(r => r.ok).map(r => targets.find(f => f.filePath === r.path)?.inode).filter(Boolean)
+    )
+
+    setMediaFiles(prev => prev.filter(f => !deletedInodes.has(f.inode)))
+    setTagsData(prev => {
+      const next = { ...prev }
+      deletedInodes.forEach(id => delete next[id])
+      if (folderPath) window.vault.writeTags(folderPath, next)
+      return next
+    })
+    setPlaylist(prev => prev.filter(id => !deletedInodes.has(id)))
+  }
+
+  // ── Export library ──
+  const exportLibrary = async () => {
+    const payload = mediaFiles.map(f => ({
+      filename:  f.filename,
+      inode:     f.inode,
+      mediaType: f.mediaType,
+      filePath:  f.filePath,
+      tags:      tagsData[f.inode]?.tags || [],
+      auto:      tagsData[f.inode]?.auto || {},
+      playCount: tagsData[f.inode]?.playCount || 0,
+    }))
+    await window.vault.saveExport(JSON.stringify(payload, null, 2))
   }
 
   const displayedFilterTags = tagSearch
@@ -146,15 +186,24 @@ export default function Library() {
           />
           <div className={styles.filterList}>
             {displayedFilterTags.map(tag => (
-              <button
-                key={tag}
-                className={`${styles.filterTag} ${activeFilters.includes(tag) ? styles.active : ''}`}
-                onClick={() => toggleFilter(tag)}
-              >
-                <span className={styles.filterDot} />
-                {tag}
-                {activeFilters.includes(tag) && <span className={styles.filterX}>×</span>}
-              </button>
+              <div key={tag} className={styles.filterRow}>
+                <button
+                  className={`${styles.filterTag} ${activeFilters.includes(tag) ? styles.active : ''}`}
+                  onClick={() => toggleFilter(tag)}
+                >
+                  <span className={styles.filterDot} />
+                  {tag}
+                  {activeFilters.includes(tag) && <span className={styles.filterX}>×</span>}
+                </button>
+                <button
+                  className={`${styles.bulkDeleteBtn} ${bulkConfirm === tag ? styles.bulkDeleteConfirm : ''}`}
+                  onClick={() => bulkDeleteByTag(tag)}
+                  onMouseLeave={() => { if (bulkConfirm === tag) setBulkConfirm(null) }}
+                  title={bulkConfirm === tag ? 'Click again to delete all files with this tag' : 'Delete all files with this tag'}
+                >
+                  <TrashIcon />
+                </button>
+              </div>
             ))}
           </div>
           {activeFilters.length > 0 && (
@@ -184,6 +233,19 @@ export default function Library() {
             <span className={styles.durSep}>–</span>
             <input type="number" placeholder="max" value={durationFilter.max}
               onChange={e => setDurationFilter(p => ({ ...p, max: e.target.value }))}
+              className={styles.durInput} />
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <div className={styles.sectionLabel}>Play count</div>
+          <div className={styles.durRow}>
+            <input type="number" placeholder="min" value={playCountFilter.min}
+              onChange={e => setPlayCountFilter(p => ({ ...p, min: e.target.value }))}
+              className={styles.durInput} />
+            <span className={styles.durSep}>–</span>
+            <input type="number" placeholder="max" value={playCountFilter.max}
+              onChange={e => setPlayCountFilter(p => ({ ...p, max: e.target.value }))}
               className={styles.durInput} />
           </div>
         </div>
@@ -225,15 +287,21 @@ export default function Library() {
                   </button>
                 ))}
               </div>
-              <button className={styles.playAllBtn} onClick={playAll} disabled={!files.length}>
-                ▶ Play All
-              </button>
+              <div className={styles.toolbarRight}>
+                <button className={styles.exportBtn} onClick={exportLibrary} disabled={!mediaFiles.length}>
+                  Export JSON
+                </button>
+                <button className={styles.playAllBtn} onClick={playAll} disabled={!files.length}>
+                  ▶ Play All
+                </button>
+              </div>
             </div>
             <div className={styles.list}>
               {files.map(file => {
                 const entry      = tagsData[file.inode] || {}
                 const manualTags = entry.tags || []
                 const auto       = entry.auto || {}
+                const playCount  = entry.playCount || 0
                 const isCurrent  = file.inode === lastInode
                 return (
                   <div key={file.inode} className={`${styles.row} ${isCurrent ? styles.current : ''}`}>
@@ -246,6 +314,9 @@ export default function Library() {
                       <div className={styles.tagRow}>
                         {auto.duration && (
                           <span className={`${styles.tag} ${styles.auto}`}>{formatDuration(auto.duration)}</span>
+                        )}
+                        {playCount > 0 && (
+                          <span className={`${styles.tag} ${styles.playCountChip}`}>▶ {playCount}</span>
                         )}
                         {manualTags.map(tag => (
                           <span key={tag} className={`${styles.tag} ${styles.manual}`}>{tag}</span>
@@ -262,6 +333,8 @@ export default function Library() {
     </div>
   )
 }
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
 
 function FolderIcon({ size = 14, dim }) {
   return (
@@ -302,6 +375,16 @@ function MediaIcon({ type }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5">
       <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+    </svg>
+  )
+}
+function TrashIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6l-1 14H6L5 6"/>
+      <path d="M10 11v6"/><path d="M14 11v6"/>
+      <path d="M9 6V4h6v2"/>
     </svg>
   )
 }

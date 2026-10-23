@@ -402,3 +402,65 @@
   color: var(--text);
   font-weight: 600;
 }
+
+/* ── Toolbar right group ── */
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exportBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+.exportBtn:hover:not(:disabled) { background: var(--bg4); color: var(--text); }
+.exportBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── Filter row: tag + bulk delete ── */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.filterRow .filterTag {
+  flex: 1;
+}
+
+.bulkDeleteBtn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.1s, background 0.1s, color 0.1s;
+}
+.filterRow:hover .bulkDeleteBtn { opacity: 1; }
+.bulkDeleteBtn:hover {
+  background: rgba(180,50,50,0.15);
+  color: rgba(200,80,80,0.9);
+}
+.bulkDeleteConfirm {
+  opacity: 1 !important;
+  background: rgba(180,50,50,0.25) !important;
+  color: #e06060 !important;
+}
+
+/* ── Play count chip on rows ── */
+.tag.playCountChip {
+  background: rgba(50,40,10,0.7);
+  color: #c8a84b;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}

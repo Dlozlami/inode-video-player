@@ -1,16 +1,52 @@
-# React + Vite
+# inode Media Player
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A local media player built with Electron + React. Plays video and images from a folder on your machine. Files are identified by inode, so renames don't break your tags or play history.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Plays video (mp4, mkv, avi, mov, webm, flv, wmv, m4v), GIFs, and images (jpg, png, webp, gif, bmp, tiff, avif)
+- Tag files and filter your library by tag
+- Filter by duration, tag count, and play count
+- Media type toggle: All / Video / Images (GIF counts as video)
+- Shuffle and loop
+- Play count tracking
+- Session tracking
+- Bulk delete by tag
+- Export library metadata as JSON
+- Delete files from within the player (two-click confirm)
+- Resumes last played file on relaunch
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Electron
+- React + Vite
+- React Router (hash-based)
+- CSS Modules
 
-## Expanding the ESLint configuration
+## Requirements
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js 18+
+
+## Install
+
+```bash
+npm install
+```
+
+## Run
+
+```bash
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Notes
+
+- Tags and play history are stored in a `tags.json` file inside your media folder.
+- Tag vocabulary and session logs are stored in Electron's userData directory.
+- No media files are ever uploaded or transmitted anywhere.
